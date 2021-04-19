@@ -10,6 +10,5 @@
 - [✅] Architecture<Arch>(건축) 구조도
   <!-- 스타일들이 크기 조절을 할 수 있고 테마를 가질 수 있도록 세팅할 거야 / dark mode 구현 방법-->
   <!-- Ex: 로그인 페이지를 어떻게 dark mode로 전활할 수 있는지 공부한다. -->
-- [] Styless
-
-https://github.com/jty90k/instaclone-web3.git
+- [✅] Styless
+- [] Log In / Sign Up
