@@ -12,3 +12,6 @@
   <!-- Ex: 로그인 페이지를 어떻게 dark mode로 전활할 수 있는지 공부한다. -->
 - [✅] Styless
 - [] Log In / Sign Up
+- [] Feed
+- [] Profile
+- [] See Hashtag
