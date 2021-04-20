@@ -6,6 +6,7 @@ import NotFound from "./screens/NotFound";
 import { darkModeVar, isLoggedInVar } from "./apollo";
 import { ThemeProvider } from "styled-components";
 import { darkTheme, GlobalStyles, lightTheme } from "./styles";
+import SignUp from "./screens/SignUp";
 
 function App() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
@@ -17,7 +18,13 @@ function App() {
         <Switch>
           <Route path="/" exact>
             {isLoggedIn ? <Home /> : <Login />}
+            {/* Route는 로그인 하지 않았을 때에만 접근할 수 있다. */}
           </Route>
+          {!isLoggedIn ? (
+            <Route path="/sign-up">
+              <SignUp />
+            </Route>
+          ) : null}
           <Route>
             <NotFound />
           </Route>
