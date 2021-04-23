@@ -1,5 +1,9 @@
+import { useMutation } from "@apollo/client";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import gql from "graphql-tag";
+import { useForm } from "react-hook-form";
+import { useHistory } from "react-router";
 import styled from "styled-components";
 import AuthLayout from "../components/auth/AuthLayout";
 import BottomBox from "../components/auth/BottomBox";
@@ -22,7 +26,55 @@ const Subtitle = styled.h3`
   margin-top: 10px;
 `;
 
+const CREATE_ACCOUNT_MUTATION = gql`
+  mutation createAccount(
+    $firstName: String!
+    $lastName: String
+    $username: String!
+    $email: String!
+    $password: String!
+  ) {
+    createAccount(
+      firstName: $firstName
+      lastName: $lastName
+      username: $username
+      email: $email
+      password: $password
+    ) {
+      ok
+      error
+    }
+  }
+`;
+
 function SignUp() {
+  const history = useHistory();
+  const onCompleted = (data) => {
+    const {
+      createAccount: { ok, error },
+    } = data;
+    if (!ok) {
+      return;
+    }
+    //회원가입 후 user를 home 으로 보낸다. 그러기 위해서는 histort API에 접근해야 한다.
+    history.push(routes.home);
+  };
+  const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
+    onCompleted,
+  });
+  const { register, handleSubmit, errors, formState } = useForm({
+    mode: "onChange",
+  });
+  const onSubmitValid = (data) => {
+    if (loading) {
+      return;
+    }
+    createAccount({
+      variables: {
+        ...data,
+      },
+    });
+  };
   return (
     <AuthLayout>
       <PageTitle title="Sign up" />
@@ -33,12 +85,51 @@ function SignUp() {
             Sign up to see photos and videos from your friends.
           </Subtitle>
         </HeaderContainer>
-        <form>
-          <Input type="text" placeholder="Email" />
-          <Input type="text" placeholder="Name" />
-          <Input type="text" placeholder="Username " />
-          <Input type="password" placeholder="Password" />
-          <Button type="submit" value="Sign up" />
+        <form onSubmit={handleSubmit(onSubmitValid)}>
+          {/* name을 항상 만들어 줘야 한다. 그렇지 않으면 React hook이 잘 안된다. */}
+          <Input
+            ref={register({
+              required: "Firstname is required",
+            })}
+            name="firstName"
+            type="text"
+            placeholder="FirstName"
+          />
+          <Input
+            ref={register}
+            type="text"
+            placeholder="LastName"
+            name="lastName"
+          />
+          <Input
+            ref={register({
+              required: "Username is required",
+            })}
+            name="username"
+            type="text"
+            placeholder="Username "
+          />
+          <Input
+            ref={register({
+              required: "Email is required",
+            })}
+            name="email"
+            type="text"
+            placeholder="Email"
+          />
+          <Input
+            ref={register({
+              required: "Password is required",
+            })}
+            name="password"
+            type="password"
+            placeholder="Password"
+          />
+          <Button
+            type="submit"
+            value={loading ? "Loading..." : "Sign up"}
+            disabled={!formState.isValid || loading}
+          />
         </form>
       </FormBox>
       <BottomBox cta="Have an account?" linkText="Log in" link={routes.home} />
