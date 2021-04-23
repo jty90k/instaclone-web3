@@ -57,6 +57,7 @@ function Login() {
     clearErrors,
   } = useForm({
     mode: "onChange",
+    // 회원가입 후 home으로 돌아온 뒤 아이디와 패스워드가 기본값으로 뜬다.
     defaultValues: {
       username: location?.state?.username || "",
       password: location?.state?.password || "",

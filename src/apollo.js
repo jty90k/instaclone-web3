@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache, makeVar } from "@apollo/client";
 
-const TOKEN = "token";
+const TOKEN = "TOKEN";
+const DARK_MODE = "DARK_MODE";
 // 이 작업으로 makeVar는 String 아니면 null 값을 줄 거야
 export const isLoggedInVar = makeVar(Boolean(localStorage.getItem("token")));
 
@@ -15,7 +16,18 @@ export const logUserOut = () => {
   window.location.reload();
 };
 
-export const darkModeVar = makeVar(false);
+export const darkModeVar = makeVar(Boolean(localStorage.getItem(DARK_MODE)));
+
+export const enableDarkMode = () => {
+  localStorage.setItem(DARK_MODE, "enabled");
+  darkModeVar(true);
+};
+
+export const disabledDarkMode = () => {
+  localStorage.removeItem(DARK_MODE);
+  darkModeVar(false);
+};
+
 export const client = new ApolloClient({
   uri: "http://localhost:4000/graphql",
   cache: new InMemoryCache(),
