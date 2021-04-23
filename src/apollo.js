@@ -12,7 +12,7 @@ export const logUserIn = (token) => {
 // 로그아웃 token 저장 삭제 로직
 export const logUserOut = () => {
   localStorage.removeItem(TOKEN);
-  isLoggedInVar(false);
+  window.location.reload();
 };
 
 export const darkModeVar = makeVar(false);
