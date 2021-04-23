@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import FormError from "../components/auth/FormError";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
+import { logUserIn } from "../apollo";
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -45,6 +46,8 @@ function Login() {
     formState,
     getValues,
     setError,
+    // clearErros를 하면 아이디를 잘 못 써도 에러를 없애주고 다시 활성화된다.
+    clearErrors,
   } = useForm({
     mode: "onChange",
   });
@@ -54,7 +57,13 @@ function Login() {
     } = data;
     // 왜 이런 식으로 error를 return 받는지 이해하기
     if (!ok) {
-      setError("result", { message: error });
+      return setError("result", {
+        message: error,
+      });
+    }
+    if (token) {
+      // 받은 토큰을 저장하는 방법  // 원한다면 token을 저장하는 기능이 담긴 파일 하나를 생성, token을 삭제하는 기능이 담긴 파일을 생성해서 token을 관리 할 수도 있어
+      logUserIn(token);
     }
   };
   const [login, { loading }] = useMutation(LOGIN_MUTATION, {
@@ -68,6 +77,10 @@ function Login() {
     login({
       variables: { username, password },
     });
+  };
+  // argument 없이 호출하면 모든 에러들을 없애줄 거야
+  const clearLoginError = () => {
+    clearErrors("result");
   };
   return (
     <AuthLayout>
@@ -86,6 +99,7 @@ function Login() {
                 message: "Username should be longer than 5 chars.",
               },
             })}
+            onChange={clearLoginError}
             name="username"
             type="text"
             placeholder="Username"
@@ -96,6 +110,7 @@ function Login() {
             ref={register({
               required: "Password is required.",
             })}
+            onChange={clearLoginError}
             name="password"
             type="password"
             placeholder="Password"
@@ -105,8 +120,12 @@ function Login() {
           <Button
             type="submit"
             value={loading ? "Loading..." : "Log in"}
+            // form이 유효(isVaild)하지 않으면 disabled라 클릭이 안된다.
+            // 동시에 우리가 설정한 error가 뜨도록 설정함.  if (!ok) {setError("result", { message: error })
+            // 그래서 아이디를 지워도 invalid 상태이다.
             disabled={!formState.isValid || loading}
           />
+          {/* 에러가 글씨가 뜨게 하는 로직 */}
           <FormError message={errors?.result?.message} />
         </form>
         <Separator />
