@@ -1,5 +1,6 @@
 import { gql, useQuery, useReactiveVar } from "@apollo/client";
-import { isLoggedInVar } from "../apollo";
+import { useEffect } from "react";
+import { isLoggedInVar, logUserOut } from "../apollo";
 
 const ME_QUERY = gql`
   query me {
@@ -11,12 +12,21 @@ const ME_QUERY = gql`
 `;
 
 // 사용자가 Local Storage를 통해 로그인 한 경우에만 실행되는 query / 즉, Local Storage에 토큰을 가지고 있는 경우를 뜻한다.
+// 사용자가 로그인 했는지를 먼저 확인했다. / 리액트 js상에서 유저가 로그인 했는지를 확인했다.
 function useUser() {
-  const isLoggedIn = useReactiveVar(isLoggedInVar);
-  const { data, error } = useQuery(ME_QUERY, {
-    skip: !isLoggedIn,
+  const hasToken = useReactiveVar(isLoggedInVar);
+  const { data } = useQuery(ME_QUERY, {
+    skip: !hasToken,
   });
-  console.log(data, error);
+  console.log(data);
+  //useEffect는 hook가 마운트되면 한 번 실행되고, 데이터가 변경될 때마다 실행 된다.
+  // token 보내는 로직
+  useEffect(() => {
+    console.log(data);
+    if (data?.me !== undefined && data.me === null) {
+      logUserOut();
+    }
+  }, [data]);
   return;
 }
 export default useUser;

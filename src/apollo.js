@@ -1,9 +1,15 @@
-import { ApolloClient, InMemoryCache, makeVar } from "@apollo/client";
+import {
+  ApolloClient,
+  createHttpLink,
+  InMemoryCache,
+  makeVar,
+} from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 
 const TOKEN = "TOKEN";
 const DARK_MODE = "DARK_MODE";
 // 이 작업으로 makeVar는 String 아니면 null 값을 줄 거야
-export const isLoggedInVar = makeVar(Boolean(localStorage.getItem("token")));
+export const isLoggedInVar = makeVar(Boolean(localStorage.getItem(TOKEN)));
 
 // 로그인 token 저장 로직
 export const logUserIn = (token) => {
@@ -28,7 +34,20 @@ export const disabledDarkMode = () => {
   darkModeVar(false);
 };
 
-export const client = new ApolloClient({
+const httpLink = createHttpLink({
   uri: "http://localhost:4000/graphql",
+});
+
+const authLink = setContext((_, { headers }) => {
+  return {
+    headers: {
+      ...headers,
+      token: localStorage.getItem(TOKEN),
+    },
+  };
+});
+
+export const client = new ApolloClient({
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
