@@ -5,6 +5,7 @@ import { isLoggedInVar, logUserOut } from "../apollo";
 const ME_QUERY = gql`
   query me {
     me {
+      id
       username
       avatar
     }
@@ -22,11 +23,11 @@ function useUser() {
   //useEffect는 hook가 마운트되면 한 번 실행되고, 데이터가 변경될 때마다 실행 된다.
   // token 보내는 로직
   useEffect(() => {
-    console.log(data);
     if (data?.me !== undefined && data.me === null) {
       logUserOut();
     }
   }, [data]);
-  return;
+  // data : Avatar 사진을 위해서 반환한다.
+  return { data };
 }
 export default useUser;
