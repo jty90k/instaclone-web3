@@ -12,6 +12,7 @@ import Avatar from "../Avatar";
 import { FatText } from "../shared";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
+import { FEED_QUERY } from "../../screens/Home";
 
 // 좋아요.
 const TOGGLE_LIKE_MUTATION = gql`
@@ -73,6 +74,7 @@ function Photo({ id, user, file, isLiked, likes }) {
     variables: {
       id,
     },
+    refetchQueries: [{ query: FEED_QUERY }],
   });
   return (
     <PhotoContainer key={id}>
