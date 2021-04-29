@@ -38,6 +38,7 @@ const httpLink = createHttpLink({
   uri: "http://localhost:4000/graphql",
 });
 
+// token 보내는 로직
 const authLink = setContext((_, { headers }) => {
   return {
     headers: {
