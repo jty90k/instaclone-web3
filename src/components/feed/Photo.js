@@ -68,6 +68,8 @@ const Likes = styled(FatText)`
   display: block;
 `;
 
+// 좋아요 (선택 / 취소) + 좋아요 갯수 표시 로직
+// Props에 like의 개수 등 여러가지가 있다.아래 / Photo({ id, user, file, isLiked, likes })
 function Photo({ id, user, file, isLiked, likes }) {
   const updateToggleLike = (cache, result) => {
     const {
@@ -76,19 +78,32 @@ function Photo({ id, user, file, isLiked, likes }) {
       },
     } = result;
     if (ok) {
-      cache.writeFragment({
-        id: `Photo:${id}`,
-        fragment: gql`
-          fragment BSName on Photo {
-            isLiked
-          }
-        `,
-        data: {
-          isLiked: !isLiked,
-        },
+      const fragmentId = `Photo:${id}`;
+      const fragment = gql`
+        fragment BSName on Photo {
+          isLiked
+          likes
+        }
+      `;
+      const result = cache.readFragment({
+        id: fragmentId,
+        fragment,
       });
+      if ("isLiked" in result && "likes" in result) {
+        const { isLiked: cacheIsLiked, likes: cacheLikes } = result;
+        cache.writeFragment({
+          id: fragmentId,
+          fragment,
+          data: {
+            isLiked: !cacheIsLiked,
+            // photo가 cacheIsLiked일 때 버튼을 누르면 like를 없애는거니까 likes에서 1을 빼야 해
+            likes: cacheIsLiked ? cacheLikes - 1 : cacheLikes + 1,
+          },
+        });
+      }
     }
   };
+
   const [toggleLikeMutation] = useMutation(TOGGLE_LIKE_MUTATION, {
     variables: {
       id,
