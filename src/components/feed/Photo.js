@@ -12,6 +12,7 @@ import Avatar from "../Avatar";
 import { FatText } from "../shared";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
+import Comments from "./Comments";
 
 // 좋아요.
 const TOGGLE_LIKE_MUTATION = gql`
@@ -22,32 +23,29 @@ const TOGGLE_LIKE_MUTATION = gql`
     }
   }
 `;
-
 const PhotoContainer = styled.div`
   background-color: white;
+  border-radius: 4px;
   border: 1px solid ${(props) => props.theme.borderColor};
-  margin-bottom: 20px;
+  margin-bottom: 60px;
   max-width: 615px;
 `;
-
 const PhotoHeader = styled.div`
   padding: 15px;
   display: flex;
   align-items: center;
+  border-bottom: 1px solid rgb(239, 239, 239);
 `;
-
 const Username = styled(FatText)`
   margin-left: 15px;
 `;
-
 const PhotoFile = styled.img`
-  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
 `;
-
 const PhotoData = styled.div`
-  padding: 15px;
+  padding: 12px 15px;
 `;
-
 const PhotoActions = styled.div`
   display: flex;
   align-items: center;
@@ -56,32 +54,17 @@ const PhotoActions = styled.div`
     display: flex;
     align-items: center;
   }
+  svg {
+    font-size: 20px;
+  }
 `;
-
 const PhotoAction = styled.div`
   margin-right: 10px;
   cursor: pointer;
 `;
-
 const Likes = styled(FatText)`
   margin-top: 15px;
   display: block;
-`;
-
-const Comments = styled.div`
-  margin-top: 20px;
-`;
-const Comment = styled.div``;
-const CommentCaption = styled.span`
-  margin-left: 10px;
-`;
-
-const CommentCount = styled.span`
-  opacity: 0.7;
-  margin: 10px 0px;
-  display: block;
-  font-weight: 600px;
-  font-size: 10px;
 `;
 
 // 좋아요 (선택 / 취소) + 좋아요 갯수 표시 로직
@@ -121,14 +104,12 @@ function Photo({
           fragment,
           data: {
             isLiked: !cacheIsLiked,
-            // photo가 cacheIsLiked일 때 버튼을 누르면 like를 없애는거니까 likes에서 1을 빼야 해
             likes: cacheIsLiked ? cacheLikes - 1 : cacheLikes + 1,
           },
         });
       }
     }
   };
-
   const [toggleLikeMutation] = useMutation(TOGGLE_LIKE_MUTATION, {
     variables: {
       id,
@@ -163,24 +144,21 @@ function Photo({
           </div>
         </PhotoActions>
         <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
-        <Comments>
-          <Comment>
-            <FatText>{user.username}</FatText>
-            <CommentCaption>{caption}</CommentCaption>
-          </Comment>
-          <CommentCount>
-            {commentNumber === 1 ? "1 comment" : `${commentNumber} comments`}
-          </CommentCount>
-        </Comments>
+        <Comments
+          author={user.username}
+          caption={caption}
+          commentNumber={commentNumber}
+          comments={comments}
+        />
       </PhotoData>
     </PhotoContainer>
   );
 }
+// 아바타 사진이 없는 사람도 있기 때문에 isRequired를 안쓴다.
 
 Photo.propTypes = {
   id: PropTypes.number.isRequired,
   user: PropTypes.shape({
-    // 아바타 사진이 없는 사람도 있기 때문에 isRequired를 안쓴다.
     avatar: PropTypes.string,
     username: PropTypes.string.isRequired,
   }),
@@ -189,7 +167,6 @@ Photo.propTypes = {
   isLiked: PropTypes.bool.isRequired,
   likes: PropTypes.number.isRequired,
   commentNumber: PropTypes.number.isRequired,
-  comments: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 export default Photo;
