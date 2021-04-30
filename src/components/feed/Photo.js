@@ -68,9 +68,34 @@ const Likes = styled(FatText)`
   display: block;
 `;
 
+const Comments = styled.div`
+  margin-top: 20px;
+`;
+const Comment = styled.div``;
+const CommentCaption = styled.span`
+  margin-left: 10px;
+`;
+
+const CommentCount = styled.span`
+  opacity: 0.7;
+  margin: 10px 0px;
+  display: block;
+  font-weight: 600px;
+  font-size: 10px;
+`;
+
 // 좋아요 (선택 / 취소) + 좋아요 갯수 표시 로직
 // Props에 like의 개수 등 여러가지가 있다.아래 / Photo({ id, user, file, isLiked, likes })
-function Photo({ id, user, file, isLiked, likes }) {
+function Photo({
+  id,
+  user,
+  file,
+  isLiked,
+  likes,
+  caption,
+  commentNumber,
+  comments,
+}) {
   const updateToggleLike = (cache, result) => {
     const {
       data: {
@@ -138,6 +163,15 @@ function Photo({ id, user, file, isLiked, likes }) {
           </div>
         </PhotoActions>
         <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
+        <Comments>
+          <Comment>
+            <FatText>{user.username}</FatText>
+            <CommentCaption>{caption}</CommentCaption>
+          </Comment>
+          <CommentCount>
+            {commentNumber === 1 ? "1 comment" : `${commentNumber} comments`}
+          </CommentCount>
+        </Comments>
       </PhotoData>
     </PhotoContainer>
   );
@@ -150,9 +184,12 @@ Photo.propTypes = {
     avatar: PropTypes.string,
     username: PropTypes.string.isRequired,
   }),
+  caption: PropTypes.string,
   file: PropTypes.string.isRequired,
   isLiked: PropTypes.bool.isRequired,
   likes: PropTypes.number.isRequired,
+  commentNumber: PropTypes.number.isRequired,
+  comments: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 export default Photo;
