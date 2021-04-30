@@ -12,7 +12,6 @@ import Avatar from "../Avatar";
 import { FatText } from "../shared";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
-import { FEED_QUERY } from "../../screens/Home";
 
 // 좋아요.
 const TOGGLE_LIKE_MUTATION = gql`
@@ -70,11 +69,31 @@ const Likes = styled(FatText)`
 `;
 
 function Photo({ id, user, file, isLiked, likes }) {
-  const [toggleLikeMutation, { loading }] = useMutation(TOGGLE_LIKE_MUTATION, {
+  const updateToggleLike = (cache, result) => {
+    const {
+      data: {
+        toggleLike: { ok },
+      },
+    } = result;
+    if (ok) {
+      cache.writeFragment({
+        id: `Photo:${id}`,
+        fragment: gql`
+          fragment BSName on Photo {
+            isLiked
+          }
+        `,
+        data: {
+          isLiked: !isLiked,
+        },
+      });
+    }
+  };
+  const [toggleLikeMutation] = useMutation(TOGGLE_LIKE_MUTATION, {
     variables: {
       id,
     },
-    refetchQueries: [{ query: FEED_QUERY }],
+    update: updateToggleLike,
   });
   return (
     <PhotoContainer key={id}>
