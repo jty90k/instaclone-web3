@@ -2,6 +2,7 @@ import { gql, useMutation } from "@apollo/client";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import useUser from "../../hooks/useUser";
 import Comment from "./Comment";
 
 const CREATE_COMMENT_MUTATION = gql`
@@ -9,6 +10,7 @@ const CREATE_COMMENT_MUTATION = gql`
     createComment(photoId: $photoId, payload: $payload) {
       ok
       error
+      id
     }
   }
 `;
@@ -26,10 +28,52 @@ const CommentCount = styled.span`
 
 function Comments({ photoId, author, caption, commentNumber, comments }) {
   // 아래 두 번째 reteurn 전까지 comments 생성 로직
+  const { data: userData } = useUser();
+  const { register, handleSubmit, setValue, getValues } = useForm();
+  const createCommentUpdate = (cache, result) => {
+    const { payload } = getValues();
+    setValue("payload", "");
+    const {
+      data: {
+        createComment: { ok, id },
+      },
+    } = result;
+    // mutation이 성공적으로 이루어졌을 경우 수정한다.
+    if (ok && userData?.me) {
+      const newComment = {
+        __typename: "Comment",
+        createAt: Date.now() + "",
+        id,
+        isMine: true,
+        payload,
+        user: {
+          ...userData.me,
+        },
+      };
+      // comments 수정 로직
+      cache.modify({
+        id: `Photo:${photoId}`,
+        fields: {
+          comments(prev) {
+            return [...prev, newComment];
+          },
+          commentNumber(prev) {
+            return prev + 1;
+          },
+        },
+      });
+    }
+  };
   const [createCommentMutation, { loading }] = useMutation(
-    CREATE_COMMENT_MUTATION
+    CREATE_COMMENT_MUTATION,
+    {
+      // 아래 대신 이렇게도 쓸 수 있다.
+      //update:(cache, result) =>{
+      //},
+      update: createCommentUpdate,
+    }
   );
-  const { register, handleSubmit, setValue } = useForm();
+  // payload는 form 안에 있다.
   const onValid = (data) => {
     const { payload } = data;
     if (loading) {
