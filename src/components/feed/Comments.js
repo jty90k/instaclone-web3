@@ -105,15 +105,20 @@ function Comments({ photoId, author, caption, commentNumber, comments }) {
   };
   return (
     <CommentsContainer>
+      {/* 이건 우리가 photo의 caption이 comment처럼 보이기 때문에 갖다 쓴거야. */}
       <Comment author={author} payload={caption} />
       <CommentCount>
         {commentNumber === 1 ? "1 comment" : `${commentNumber} comments`}
       </CommentCount>
       {comments?.map((comment) => (
+        //유저가 만든 Comment이다.
         <Comment
           key={comment.id}
+          id={comment.id}
+          photoId={photoId}
           author={comment.user.username}
           payload={comment.payload}
+          isMine={comment.isMine}
         />
       ))}
       {/* comments : 댓글 쓰는 로직 */}
