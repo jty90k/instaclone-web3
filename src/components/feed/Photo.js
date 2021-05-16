@@ -10,8 +10,7 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 import Avatar from "../Avatar";
 import { FatText } from "../shared";
-import gql from "graphql-tag";
-import { useMutation } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import Comments from "./Comments";
 import { Link } from "react-router-dom";
 
