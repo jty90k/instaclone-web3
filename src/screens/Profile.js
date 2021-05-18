@@ -3,8 +3,26 @@ import { faComment, faHeart } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import Button from "../components/auth/Button.js";
+import PageTitle from "../components/PageTitle.js";
 import { FatText } from "../components/shared.js";
 import { PHOTO_FRAGMENT } from "../fragments.js";
+
+const FOLLOW_USER_MUTATION = gql`
+  mutation followUser($username: String!) {
+    followUser(username: $username) {
+      ok
+    }
+  }
+`;
+
+const UNFOLLOW_USER_MUTATION = gql`
+  mutation unfollowUser($username: String!) {
+    unfollowUser(username: $username) {
+      ok
+    }
+  }
+`;
 
 const SEE_PROFILE_QUERY = gql`
   query seeProfile($username: String!) {
@@ -28,6 +46,7 @@ const SEE_PROFILE_QUERY = gql`
 
 const Header = styled.div`
   display: flex;
+  margin-top: 30px;
 `;
 
 const Avatar = styled.img`
@@ -41,6 +60,7 @@ const Avatar = styled.img`
 
 const Column = styled.div``;
 const Username = styled.h3`
+  margin-top: 11px;
   font-size: 28px;
   font-weight: 400;
 `;
@@ -48,6 +68,7 @@ const Username = styled.h3`
 const Row = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
+  display: flex;
 `;
 
 const List = styled.ul`
@@ -105,22 +126,49 @@ const Icon = styled.span`
     margin-right: 5px;
   }
 `;
+// Edit Profile & Follow & UnFollow 누르는 버튼을 만들어 준다. #단 그냥 <Button></Button>으로 하면 Error가 생긴다,
+const ProfileBtn = styled(Button).attrs({
+  as: "span",
+  // 버튼에 스타일 값을 준다.
+})`
+  margin-left: 10px;
+  margin-top: 12px;
+`;
 
 function Profile() {
   const { username } = useParams();
-  const { data } = useQuery(SEE_PROFILE_QUERY, {
+  // Page title: loading Hook을 준다.
+  const { data, loading } = useQuery(SEE_PROFILE_QUERY, {
     variables: {
       username,
     },
   });
+  const getButton = (seeProfile) => {
+    const { isMe, isFollowing } = seeProfile;
+    // 유저라면
+    if (isMe) {
+      return <ProfileBtn>Edit Profile</ProfileBtn>;
+    }
+    if (isFollowing) {
+      return <ProfileBtn>Unfollow</ProfileBtn>;
+    } else {
+      return <ProfileBtn>Follow</ProfileBtn>;
+    }
+  };
 
   return (
     <div>
+      <PageTitle
+        title={
+          loading ? "Loading..." : `${data?.seeProfile?.username}'s Profile`
+        }
+      />
       <Header>
         <Avatar src={data?.seeProfile?.avatar} />
         <Column>
           <Row>
             <Username>{data?.seeProfile?.username}</Username>
+            {data?.seeProfile ? getButton(data.seeProfile) : null}
           </Row>
           <Row>
             <List>
@@ -148,7 +196,7 @@ function Profile() {
       </Header>
       <Grid>
         {data?.seeProfile?.photos.map((photo) => (
-          <Photo bg={photo.file}>
+          <Photo key={photo.id} bg={photo.file}>
             <Icons>
               <Icon>
                 <FontAwesomeIcon icon={faHeart} />

@@ -42,7 +42,7 @@ const Button = styled.span`
   font-weight: 600;
 `;
 
-const IconContatiner = styled.div`
+const IconContainer = styled.div`
   display: flex;
   align-items: center;
 `;
@@ -59,7 +59,7 @@ function Header() {
         </Column>
         <Column>
           {isLoggedIn ? (
-            <IconContatiner>
+            <IconContainer>
               <Icon>
                 <Link to={routes.home}>
                   <FontAwesomeIcon icon={faHome} size="lg" />
@@ -73,7 +73,7 @@ function Header() {
                   <Avatar url={data?.me?.avatar} />
                 </Link>
               </Icon>
-            </IconContatiner>
+            </IconContainer>
           ) : (
             <Link href={routes.home}>
               <Button>Login</Button>
