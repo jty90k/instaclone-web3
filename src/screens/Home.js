@@ -3,7 +3,7 @@ import Photo from "../components/feed/Photo";
 import PageTitle from "../components/PageTitle";
 import { COMMENT_FRAGMENT, PHOTO_FRAGMENT } from "../fragments";
 
-export const FEED_QUERY = gql`
+const FEED_QUERY = gql`
   query seeFeed {
     seeFeed {
       ...PhotoFragment
